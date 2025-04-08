@@ -16,7 +16,7 @@ import tensorflow as tf
 
 if __name__ == "__main__":
     # 加载数据集
-    train_dataset, valid_dataset, test_dataset, input_dim = load_dataset(r"D:\\BaiduNetdiskDownload\\头条数据\\train_2.csv")
+    train_dataset, valid_dataset, test_dataset, input_dim = load_dataset("./train_2.csv")
 
     # 构建模型
     model = build_deepfm_model(input_dim)
