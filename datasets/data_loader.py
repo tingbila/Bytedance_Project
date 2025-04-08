@@ -14,6 +14,7 @@ from sklearn.preprocessing import StandardScaler
 import joblib
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 import os
+from config.data_config import COLUMN_NAMES, CATEGORICAL_COLS, NUMERIC_COLS, TARGET_COLS
 
 
 def preprocess_dataframe(df, numeric_cols, categorical_cols, save_path=None):
@@ -54,19 +55,18 @@ def preprocess_dataframe(df, numeric_cols, categorical_cols, save_path=None):
 
 
 def load_dataset(file_path, batch_size=256):
-    column_names = ["uid", "user_city", "item_id", "author_id", "item_city", "channel",
-                    "finish", "like", "music_id", "device", "time", "duration_time"]
+    column_names = COLUMN_NAMES
     df = pd.read_csv(file_path, names=column_names)
 
     # 区分数值特征和稀疏特征
-    categorical_cols  = ["uid", "user_city", "item_id", "author_id", "item_city", "channel","music_id", "device"]
-    numeric_cols      = ["time", "duration_time"]
+    categorical_cols  = CATEGORICAL_COLS
+    numeric_cols      = NUMERIC_COLS
 
     df = preprocess_dataframe(df, numeric_cols, categorical_cols, save_path="./pkl_struct/")
     print(df)
 
-    y = df[["finish", "like"]].values
-    X = df.drop(columns=["finish", "like"])
+    y = df[TARGET_COLS].values
+    X = df.drop(columns=TARGET_COLS)
     # print(X.shape)  # (40, 234)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
