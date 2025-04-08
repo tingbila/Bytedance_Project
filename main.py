@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 # @Time  : 2018.
 # @Author : 张明阳
-# @Email : mingyang.zhang@ushow.media
+# @Email :  mingyang.zhang@ushow.media
 
 # 项目入口 main.py
 # 用于训练和评估模型
