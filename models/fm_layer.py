@@ -20,6 +20,7 @@ class FMInteractionLayer(layers.Layer):
             initializer="random_normal",
             trainable=True
         )
+        print(self.V.shape)  # (234, 5)
 
     def call(self, x):
         xv = tf.matmul(x, self.V)
