@@ -24,7 +24,9 @@ class FMInteractionLayer(layers.Layer):
         print(self.V)
         print(self.V.shape)  # (234, 5)
 
+
     def call(self, x):
+        # a*b = [(a+b)^2 - (a^2+b^2)]/2
         xv = tf.matmul(x, self.V)
         xv_square = tf.square(xv)
         x_square_v_square = tf.matmul(tf.square(x), tf.square(self.V))
