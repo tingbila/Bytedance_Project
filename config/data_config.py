@@ -16,3 +16,26 @@ NUMERIC_COLS = ["time", "duration_time"]
 
 # 目标列
 TARGET_COLS = ["finish", "like"]
+
+test_size = 0.2  # 测试集比例
+batch_size = 2   # 批量大小
+embed_dim = 5    # 嵌入维度
+epochs = 20      # 训练轮数
+lr = 0.002       # 学习率
+file = r"D:\software\jupyter_code\criteo_sample.txt"  # 数据文件路径
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

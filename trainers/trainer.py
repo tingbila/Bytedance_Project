@@ -5,11 +5,14 @@
 # @Email : mingyang.zhang@ushow.media
 
 
+from config.data_config import *
+
 # trainers/trainer.py
 from tensorflow import keras
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
+import tensorflow as tf
 
 # 设置 Pandas 显示选项，防止省略
 pd.set_option('display.max_columns', None)   # 显示所有列
@@ -22,11 +25,11 @@ import matplotlib
 matplotlib.use('TkAgg')  # 或者 'QtAgg'，看你电脑支持哪个
 
 
-def train_and_evaluate(model, train_dataset, valid_dataset, test_dataset, epochs=10):
+def train_and_evaluate(model, train_ds, valid_ds, feat_columns):
     model.compile(
-        optimizer='adam',
-        loss=['binary_crossentropy', 'binary_crossentropy'],
-        metrics=[['accuracy'], ['accuracy']]
+        optimizer=tf.keras.optimizers.Adam(learning_rate=lr),
+        loss=tf.keras.losses.BinaryCrossentropy(),
+        metrics=[tf.keras.metrics.AUC(name='AUC'), tf.keras.metrics.BinaryAccuracy(name='ACC')]
     )
 
     # 输出目录结构
@@ -39,28 +42,24 @@ def train_and_evaluate(model, train_dataset, valid_dataset, test_dataset, epochs
 
     callbacks = [
         keras.callbacks.EarlyStopping(
-            monitor='val_loss', patience=5, restore_best_weights=True
+            monitor='val_AUC', patience=5, restore_best_weights=True
         ),
         keras.callbacks.ModelCheckpoint(
             filepath=output_model_file,
-            monitor='val_loss',
+            monitor='val_AUC',
             save_best_only=True,
-            mode='min',
+            mode='max',
             verbose=1
         )
     ]
 
+
     history = model.fit(
-        train_dataset,
-        validation_data=valid_dataset,
-        epochs=50,
+        train_ds,
+        validation_data=valid_ds,
+        epochs=epochs,
         callbacks=callbacks
     )
-
-    print("\nTest Evaluation:")
-    # 评估
-    test_loss = model.evaluate(test_dataset, verbose=1)
-    print(f"\nTest Loss & Accuracy: {test_loss}")
 
     # 然后再打印
     print(pd.DataFrame(history.history))
@@ -78,13 +77,11 @@ def train_and_evaluate(model, train_dataset, valid_dataset, test_dataset, epochs
     plt.legend()
 
     plt.subplot(1, 2, 2)
-    plt.plot(history.epoch, history.history['finish_accuracy'], label='Train Acc - Finish')
-    plt.plot(history.epoch, history.history['val_finish_accuracy'], label='Val Acc - Finish')
-    plt.plot(history.epoch, history.history['like_accuracy'], label='Train Acc - Like')
-    plt.plot(history.epoch, history.history['val_like_accuracy'], label='Val Acc - Like')
+    plt.plot(history.epoch, history.history['AUC'], label='Train AUC - Finish')
+    plt.plot(history.epoch, history.history['val_AUC'], label='Val Acc - Finish')
     plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.title('Accuracy over Epochs')
+    plt.ylabel('AUC')
+    plt.title('AUC over Epochs')
     plt.legend()
 
     plt.tight_layout()

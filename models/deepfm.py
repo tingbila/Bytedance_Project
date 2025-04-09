@@ -8,32 +8,127 @@
 # models/deepfm.py
 from tensorflow.keras import layers, Model
 from models.fm_layer import FMInteractionLayer
+import tensorflow as tf
+import numpy as np
+import tensorflow as tf
+import numpy as np
+from config.data_config import *
 
-def build_deepfm_model(input_dim):
-    inputs = layers.Input(shape=(input_dim,))
 
-    # 线性部分
-    linear_part = layers.Dense(1)(inputs)
+class DeepFM(Model):
+    def __init__(self, feat_columns, emb_size):
+        super(DeepFM, self).__init__()
+        self.dense_feats, self.sparse_feats = feat_columns[0], feat_columns[1]
+        self.dense_size = len(self.dense_feats)
+        self.emb_size = emb_size
 
-    # FM 二阶交互项
-    fm_interactions = FMInteractionLayer(embedding_dim=5)(inputs)
+        self.linear_dense = layers.Dense(1)
 
-    # Deep 部分
-    x = layers.Dense(128)(inputs)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.Dropout(0.3)(x)
+        self.first_order_sparse_emb = [
+            layers.Embedding(input_dim=feat['feat_num'], output_dim=1)
+            for feat in self.sparse_feats
+        ]
 
-    x = layers.Dense(64)(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.Dropout(0.3)(x)
+        self.second_order_sparse_emb = [
+            layers.Embedding(input_dim=feat['feat_num'], output_dim=emb_size)
+            for feat in self.sparse_feats
+        ]
 
-    # 输出层
-    deep_output = layers.Dense(1)(x)
+        self.dnn = tf.keras.Sequential([
+            layers.Dense(200, activation='relu'),
+            layers.Dropout(0.3),
+            layers.Dense(200, activation='relu'),
+            layers.Dropout(0.2),
+            layers.Dense(200, activation='relu'),
+            layers.Dropout(0.2),
+            layers.Dense(1)
+        ])
 
-    output1 = layers.Dense(1, activation='sigmoid', name='finish')(linear_part + fm_interactions + deep_output)
-    output2 = layers.Dense(1, activation='sigmoid', name='like')(linear_part + fm_interactions + deep_output)
+    def call(self, inputs, training=False):
+        sparse_inputs, dense_inputs = inputs
+        # Dense 输入:
+        # [[0.211972   0.3256514 ]
+        #  [0.58325326 0.5058359 ]]
+        # Sparse 输入:
+        # [[5 4 1]
+        #  [3 2 3]]
 
-    model = Model(inputs=inputs, outputs=[output1, output2])
-    return model
+        linear_dense_out = self.linear_dense(dense_inputs)
+        linear_sparse_out = tf.concat([emb(sparse_inputs[:, i]) for i, emb in enumerate(self.first_order_sparse_emb)],
+                                      axis=1)
+        # print("--------------1-----------")
+        # print(linear_sparse_out)
+        # [[ 0.01539519 -0.04832922 -0.02953873]
+        #  [ 0.02253106  0.00941402  0.04219601]]
+
+        linear_sparse_out = tf.reduce_sum(linear_sparse_out, axis=1, keepdims=True)
+        first_order_output = linear_dense_out + linear_sparse_out
+        # print(first_order_output)
+        # [[0.22632796]
+        #  [0.6256093 ]]
+
+        embeddings = tf.stack([emb(sparse_inputs[:, i]) for i, emb in enumerate(self.second_order_sparse_emb)], axis=1)
+        # print(embeddings)
+        # Tensor("stack:0", shape=(2, 3, 5), dtype=float32)
+        # tf.Tensor(
+        # [[[-0.0292243   0.03134212 -0.00664638  0.0308771   0.03662998]
+        #   [-0.02252715  0.00618609 -0.0408314   0.0155008   0.00702292]
+        #   [ 0.02527222  0.02442351  0.01027572  0.04815536  0.01610643]]
+
+        #  [[ 0.01005882 -0.03315624 -0.0195043   0.01774564  0.03821408]
+        #   [-0.03824542  0.00229248  0.00047214  0.0488669  -0.04776417]
+        #   [-0.01696395 -0.00136379  0.04921383  0.04019973 -0.00026955]]], shape=(2, 3, 5), dtype=float32)
+
+        summed = tf.reduce_sum(embeddings, axis=1)
+        squared_sum = tf.square(summed)
+        squared = tf.reduce_sum(tf.square(embeddings), axis=1)
+        second_order = 0.5 * tf.reduce_sum(squared_sum - squared, axis=1, keepdims=True)
+        # print(second_order)
+        # [[0.00537243]
+        #  [0.00075581]]
+
+        flatten_embeddings = tf.reshape(embeddings, shape=(-1, len(self.sparse_feats) * self.emb_size))
+        # print(flatten_embeddings)
+        # Tensor("Reshape:0", shape=(2, 15), dtype=float32)
+        # tf.Tensor(
+        # [[-0.03405142  0.01116457 -0.00488006  0.03367222 -0.04788997  0.0262876 0.04647902 -0.01162871  0.03328068  0.04433748  0.02085209  0.01660527
+        #   -0.02046416  0.00683039  0.04853446]
+        #  [-0.03806484  0.0479795   0.0132894  -0.03121579 -0.0166074   0.00733398
+        #    0.00708617 -0.00899755  0.02732437 -0.00605234 -0.02896208  0.02931662
+        #    0.0044607   0.03854013  0.04758653]], shape=(2, 15), dtype=float32)
+        dnn_input = tf.concat([dense_inputs, flatten_embeddings], axis=1)
+        dnn_output = self.dnn(dnn_input, training=training)
+
+        output = tf.nn.sigmoid(first_order_output + second_order + dnn_output)
+        return output
+
+
+if __name__ == '__main__':
+    # 假设有 2 个 dense 特征，3 个 sparse 特征
+    dense_feats = ['I1', 'I2']
+    sparse_feats = ['C1', 'C2', 'C3']
+
+    # 每个 sparse 特征的唯一值个数分别为 10, 8, 6
+    feat_columns = [
+        [{'feat': 'I1'}, {'feat': 'I2'}],
+        [{'feat': 'C1', 'feat_num': 10}, {'feat': 'C2', 'feat_num': 8}, {'feat': 'C3', 'feat_num': 6}]
+    ]
+
+    # 初始化模型
+    model = DeepFM(feat_columns=feat_columns, emb_size=5)
+
+    # 模拟 batch size 为 3 的输入
+    batch_size = 3
+    dense_input = tf.random.uniform(shape=(batch_size, len(dense_feats)), dtype=tf.float32)
+    sparse_input = tf.random.uniform(shape=(batch_size, len(sparse_feats)), maxval=6, dtype=tf.int32)
+
+    # 前向传播
+    output = model((sparse_input, dense_input), training=False)
+
+    # 打印结果
+    print("Dense 输入:")
+    print(dense_input.numpy())
+    print("Sparse 输入:")
+    print(sparse_input.numpy())
+    print("\n模型输出:")
+    print(output.numpy())
