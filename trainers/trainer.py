@@ -25,12 +25,19 @@ import matplotlib
 matplotlib.use('TkAgg')  # 或者 'QtAgg'，看你电脑支持哪个
 
 
-def train_and_evaluate(model, train_ds, valid_ds, feat_columns):
+def train_and_evaluate(model, train_dataset, valid_dataset,test_dataset):
+    # model.compile(
+    #     optimizer='adam',
+    #     loss=['binary_crossentropy', 'binary_crossentropy'],
+    #     metrics=[['accuracy'], ['accuracy']]
+    # )
+
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=lr),
-        loss=tf.keras.losses.BinaryCrossentropy(),
-        metrics=[tf.keras.metrics.AUC(name='AUC'), tf.keras.metrics.BinaryAccuracy(name='ACC')]
+        optimizer='adam',
+        loss={'finish': 'binary_crossentropy', 'like': 'binary_crossentropy'},
+        metrics={'finish': 'accuracy', 'like': 'accuracy'}
     )
+
 
     # 输出目录结构
     base_dir = './outputs'
@@ -42,24 +49,28 @@ def train_and_evaluate(model, train_ds, valid_ds, feat_columns):
 
     callbacks = [
         keras.callbacks.EarlyStopping(
-            monitor='val_AUC', patience=5, restore_best_weights=True
+            monitor='val_loss', patience=5, restore_best_weights=True
         ),
         keras.callbacks.ModelCheckpoint(
             filepath=output_model_file,
-            monitor='val_AUC',
+            monitor='val_loss',
             save_best_only=True,
-            mode='max',
+            mode='min',
             verbose=1
         )
     ]
 
-
     history = model.fit(
-        train_ds,
-        validation_data=valid_ds,
-        epochs=epochs,
+        train_dataset,
+        validation_data=valid_dataset,
+        epochs=50,
         callbacks=callbacks
     )
+
+    print("\nTest Evaluation:")
+    # 评估
+    test_loss = model.evaluate(test_dataset, verbose=1)
+    print(f"\nTest Loss & Accuracy: {test_loss}")
 
     # 然后再打印
     print(pd.DataFrame(history.history))
@@ -77,11 +88,13 @@ def train_and_evaluate(model, train_ds, valid_ds, feat_columns):
     plt.legend()
 
     plt.subplot(1, 2, 2)
-    plt.plot(history.epoch, history.history['AUC'], label='Train AUC - Finish')
-    plt.plot(history.epoch, history.history['val_AUC'], label='Val Acc - Finish')
+    plt.plot(history.epoch, history.history['finish_accuracy'], label='Train Acc - Finish')
+    plt.plot(history.epoch, history.history['val_finish_accuracy'], label='Val Acc - Finish')
+    plt.plot(history.epoch, history.history['like_accuracy'], label='Train Acc - Like')
+    plt.plot(history.epoch, history.history['val_like_accuracy'], label='Val Acc - Like')
     plt.xlabel('Epoch')
-    plt.ylabel('AUC')
-    plt.title('AUC over Epochs')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy over Epochs')
     plt.legend()
 
     plt.tight_layout()

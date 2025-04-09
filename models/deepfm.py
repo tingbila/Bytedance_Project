@@ -44,6 +44,12 @@ class DeepFM(Model):
             layers.Dense(1)
         ])
 
+        # 每个任务一个输出层
+        self.finish_output_layer = tf.keras.layers.Dense(1, activation='sigmoid', name='finish')
+        self.like_output_layer   = tf.keras.layers.Dense(1, activation='sigmoid', name='like')
+
+
+
     def call(self, inputs, training=False):
         sparse_inputs, dense_inputs = inputs
         # Dense 输入:
@@ -99,8 +105,14 @@ class DeepFM(Model):
         dnn_input = tf.concat([dense_inputs, flatten_embeddings], axis=1)
         dnn_output = self.dnn(dnn_input, training=training)
 
-        output = tf.nn.sigmoid(first_order_output + second_order + dnn_output)
-        return output
+        logits = first_order_output + second_order + dnn_output
+
+        # 分支输出
+        finish_output = self.finish_output_layer(logits)
+        like_output   = self.like_output_layer(logits)
+
+        return {'finish': finish_output, 'like': like_output}
+
 
 
 if __name__ == '__main__':
@@ -131,4 +143,24 @@ if __name__ == '__main__':
     print("Sparse 输入:")
     print(sparse_input.numpy())
     print("\n模型输出:")
-    print(output.numpy())
+    print(output)
+
+
+    # Dense 输入:
+    # [[0.19882536 0.9919691 ]
+    #  [0.14089882 0.6178216 ]
+    #  [0.59311116 0.79255974]]
+    # Sparse 输入:
+    # [[1 3 3]
+    #  [4 4 0]
+    #  [1 3 2]]
+    #
+    # 模型输出:
+    # (<tf.Tensor: shape=(3, 1), dtype=float32, numpy=
+    # array([[0.47370112],
+    #        [0.4806958 ],
+    #        [0.4883328 ]], dtype=float32)>, <tf.Tensor: shape=(3, 1), dtype=float32, numpy=
+    # array([[0.43123466],
+    #        [0.4493978 ],
+    #        [0.4693598 ]], dtype=float32)>)
+

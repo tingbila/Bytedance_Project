@@ -118,7 +118,7 @@ def process_sparse_feats(data, feats):
 
 
 # 创建数据集，处理特征并返回处理后的数据和特征信息
-def create_dataset(file='./data/criteo_sampled_data.csv', embed_dim=4):
+def create_dataset(file_path='./data/criteo_sampled_data.csv', embed_dim=5):
     """
     创建并处理数据集，包括数值和稀疏特征的处理。
 
@@ -132,38 +132,49 @@ def create_dataset(file='./data/criteo_sampled_data.csv', embed_dim=4):
     dense_feats (list): 数值特征列名列表
     sparse_feats (list): 稀疏特征列名列表
     """
-    # 只读取指定的列
-    columns_to_read = ['label', 'I1', 'I2', 'C1', 'C2', 'C3']  # 替换为实际的列名
-    data = pd.read_csv(file, usecols=columns_to_read)
+    column_names = ["uid", "user_city", "item_id", "author_id", "item_city", "channel",
+                    "finish", "like", "music_id", "device", "time", "duration_time"]
+    data = pd.read_csv(file_path, names=column_names)
 
     # 区分数值特征和稀疏特征
-    dense_feats = [col for col in data.columns if col[0] == 'I']  # 数值特征以 'I' 开头
-    sparse_feats = [col for col in data.columns if col[0] == 'C']  # 稀疏特征以 'C' 开头
+    sparse_feats  = ["uid", "user_city", "item_id", "author_id", "item_city", "channel","music_id", "device"]
+    dense_feats   = ["time", "duration_time"]
+
 
     # 对数值特征和稀疏特征进行处理
-    data = process_dense_feats(data, dense_feats)
+    data = process_dense_feats(data,  dense_feats)
     data = process_sparse_feats(data, sparse_feats)
+
+    # y = data[["finish", "like"]].values
+    # X = data.drop(columns=["finish", "like"])
+    # print(X.shape)  # (40, 234)
+
 
     # 构建特征字典列表，用于模型输入
     feat_columns = [
-        [dense_feat(feat) for feat in dense_feats],  # 数值特征的字典列表
+        [dense_feat(feat) for feat in dense_feats],                             # 数值特征的字典列表
         [sparse_feat(feat, len(data[feat].unique())) for feat in sparse_feats]  # 稀疏特征的字典列表
     ]
 
-    train_data, valid_data = train_test_split(data, test_size=test_size, random_state=42)
+    train_data, test_data  = train_test_split(data,       test_size=test_size, random_state=42)
+    train_data, valid_data = train_test_split(train_data, test_size=test_size, random_state=42)
 
     # 将pandas 的 DataFrame 数据转换成 TensorFlow 的 tf.data.Dataset，以供模型训练使用
     def df_to_dataset(df):
         sparse_tensor = tf.convert_to_tensor(df[sparse_feats].values, dtype=tf.int32)
         dense_tensor = tf.convert_to_tensor(df[dense_feats].values, dtype=tf.float32)
-        labels = tf.convert_to_tensor(df['label'].values, dtype=tf.float32)
+        labels = tf.convert_to_tensor(df[["finish", "like"]].values, dtype=tf.float32)
         # 将输入 (sparse_tensor, dense_tensor) 和标签 labels 打包成一个 tf.data.Dataset
-        return tf.data.Dataset.from_tensor_slices(((sparse_tensor, dense_tensor), labels))
+        labels_finish = labels[:, 0]
+        labels_like   = labels[:, 1]
+        return tf.data.Dataset.from_tensor_slices(((sparse_tensor, dense_tensor), (labels_finish, labels_like)))
 
     train_ds = df_to_dataset(train_data)
     valid_ds = df_to_dataset(valid_data)
+    test_ds  = df_to_dataset(test_data)
 
     train_ds = train_ds.shuffle(1024).batch(batch_size).prefetch(tf.data.AUTOTUNE)
     valid_ds = valid_ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
+    test_ds  = test_ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
 
-    return data, train_ds, valid_ds, feat_columns
+    return data, train_ds, valid_ds,test_ds, feat_columns
