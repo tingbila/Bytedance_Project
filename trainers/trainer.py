@@ -84,7 +84,11 @@ def train_and_evaluate(model, train_dataset, valid_dataset, test_dataset):
     #                                                                 [0.50873137],
     #                                                                 [0.52486163],
     #                                                                 [0.531861]], dtype=float32)}
+    # 评估指标
+    # 预测测试数据中每一条数据的点击（finish + like）概率。本次比赛使用AUC（ROC曲线下面积）作为评估指标。AUC的定义和计算方法可参考维基百科。AUC越高，代表结果越优，排名越靠前。
+    # 在总分中，finish和like的分配比例是：0.7finish + 0.3like
 
+    
     print(pd.DataFrame(history.history))
     print(history.epoch)
 
