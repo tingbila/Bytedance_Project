@@ -65,6 +65,26 @@ def train_and_evaluate(model, train_dataset, valid_dataset, test_dataset):
     test_loss = model.evaluate(test_dataset, verbose=1)
     print(f"\nTest Loss & Metrics: {test_loss}")
 
+    # 你完全可以调用 model.predict(test_dataset)，即使 test_dataset 中包含了标签，Keras 会自动忽略标签部分，只用特征做前向预测。
+    # y_pred = model.predict(test_dataset)
+    # print(y_pred)
+    # 模型有两个输出任务（finish 和 like），每个都是一个 [0, 1] 之间的概率值，表示每条样本被 finish / like 的概率
+    # {'finish': array([[0.45237187],
+    #                   [0.44068933],
+    #                   [0.48365387],
+    #                   [0.45916972],
+    #                   [0.47017196],
+    #                   [0.47122645],
+    #                   [0.4356586],
+    #                   [0.42037615]], dtype=float32), 'like': array([[0.51725936],
+    #                                                                 [0.5225682],
+    #                                                                 [0.5031291],
+    #                                                                 [0.5141797],
+    #                                                                 [0.5092073],
+    #                                                                 [0.50873137],
+    #                                                                 [0.52486163],
+    #                                                                 [0.531861]], dtype=float32)}
+
     print(pd.DataFrame(history.history))
     print(history.epoch)
 
