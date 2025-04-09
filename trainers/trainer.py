@@ -4,7 +4,6 @@
 # @Author : 张明阳
 # @Email : mingyang.zhang@ushow.media
 
-
 from config.data_config import *
 
 # trainers/trainer.py
@@ -15,29 +14,24 @@ import os
 import tensorflow as tf
 
 # 设置 Pandas 显示选项，防止省略
-pd.set_option('display.max_columns', None)   # 显示所有列
-pd.set_option('display.max_rows', None)      # 显示所有行
-pd.set_option('display.width', None)         # 自动调整显示宽度
-pd.set_option('display.max_colwidth', None)  # 显示每列最大内容宽度
-
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
 
 import matplotlib
 matplotlib.use('TkAgg')  # 或者 'QtAgg'，看你电脑支持哪个
 
-
-def train_and_evaluate(model, train_dataset, valid_dataset,test_dataset):
-    # model.compile(
-    #     optimizer='adam',
-    #     loss=['binary_crossentropy', 'binary_crossentropy'],
-    #     metrics=[['accuracy'], ['accuracy']]
-    # )
-
+def train_and_evaluate(model, train_dataset, valid_dataset, test_dataset):
+    # 评估指标从 Accuracy 改为 AUC（同时保留 Accuracy）
     model.compile(
         optimizer='adam',
         loss={'finish': 'binary_crossentropy', 'like': 'binary_crossentropy'},
-        metrics={'finish': 'accuracy', 'like': 'accuracy'}
+        metrics={
+            'finish': [keras.metrics.AUC(name='auc'), 'accuracy'],
+            'like': [keras.metrics.AUC(name='auc'), 'accuracy']
+        }
     )
-
 
     # 输出目录结构
     base_dir = './outputs'
@@ -68,11 +62,9 @@ def train_and_evaluate(model, train_dataset, valid_dataset,test_dataset):
     )
 
     print("\nTest Evaluation:")
-    # 评估
     test_loss = model.evaluate(test_dataset, verbose=1)
-    print(f"\nTest Loss & Accuracy: {test_loss}")
+    print(f"\nTest Loss & Metrics: {test_loss}")
 
-    # 然后再打印
     print(pd.DataFrame(history.history))
     print(history.epoch)
 
@@ -88,14 +80,25 @@ def train_and_evaluate(model, train_dataset, valid_dataset,test_dataset):
     plt.legend()
 
     plt.subplot(1, 2, 2)
-    plt.plot(history.epoch, history.history['finish_accuracy'], label='Train Acc - Finish')
-    plt.plot(history.epoch, history.history['val_finish_accuracy'], label='Val Acc - Finish')
-    plt.plot(history.epoch, history.history['like_accuracy'], label='Train Acc - Like')
-    plt.plot(history.epoch, history.history['val_like_accuracy'], label='Val Acc - Like')
+    plt.plot(history.epoch, history.history['finish_auc'], label='Train AUC - Finish')
+    plt.plot(history.epoch, history.history['val_finish_auc'], label='Val AUC - Finish')
+    plt.plot(history.epoch, history.history['like_auc'], label='Train AUC - Like')
+    plt.plot(history.epoch, history.history['val_like_auc'], label='Val AUC - Like')
     plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.title('Accuracy over Epochs')
+    plt.ylabel('AUC')
+    plt.title('AUC over Epochs')
     plt.legend()
 
     plt.tight_layout()
     plt.show()
+
+
+# Test Loss & Metrics: [1.2047441005706787, 0.6992161273956299, 0.5055279731750488, 0.375, 0.7999999523162842, 1.0, 0.0]
+#    finish_accuracy  finish_auc  finish_loss  like_accuracy  like_auc  like_loss      loss  val_finish_accuracy  val_finish_auc  val_finish_loss  val_like_accuracy  val_like_auc  val_like_loss  val_loss
+# 0             0.64       0.800     0.550040           0.48  0.458333   0.605947  1.183139             0.428571        0.166667         0.956011                1.0           0.0       0.398620  1.365861
+# 1             0.80       0.690     0.432517           0.96  0.291667   0.387115  0.745555             0.428571        0.250000         1.544587                1.0           0.0       0.133579  1.844764
+# 2             0.80       0.805     0.414861           0.96  0.416667   0.208397  0.647375             0.428571        0.250000         1.681163                1.0           0.0       0.133551  1.993070
+# 3             0.80       0.830     0.390524           0.96  0.479167   0.208582  0.604369             0.428571        0.250000         1.659434                1.0           0.0       0.156601  1.976349
+# 4             0.80       1.000     0.330603           0.96  0.791667   0.191864  0.524144             0.428571        0.291667         1.880151                1.0           0.0       0.127263  2.209401
+# 5             0.80       0.950     0.358698           0.96  0.916667   0.203496  0.511783             0.428571        0.291667         2.171582                1.0           0.0       0.082203  2.520214
+# [0, 1, 2, 3, 4, 5]
