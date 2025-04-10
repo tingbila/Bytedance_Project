@@ -15,9 +15,9 @@ import numpy as np
 from config.data_config import *
 
 
-class DeepFM(Model):
+class DeepFM_MTL(Model):
     def __init__(self, feat_columns, emb_size):
-        super(DeepFM, self).__init__()
+        super(DeepFM_MTL, self).__init__()
         self.dense_feats, self.sparse_feats = feat_columns[0], feat_columns[1]
         self.dense_size = len(self.dense_feats)
         self.emb_size = emb_size
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     ]
 
     # 初始化模型
-    model = DeepFM(feat_columns=feat_columns, emb_size=5)
+    model = DeepFM_MTL(feat_columns=feat_columns, emb_size=5)
 
     # 模拟 batch size 为 3 的输入
     batch_size = 3
