@@ -33,9 +33,9 @@ if __name__ == "__main__":
     # print(item)
 
     # 构建模型
-    # 调用DeepFM模型
+    # 1. 调用DeepFM模型
     # model = DeepFM_MTL(feat_columns,embed_dim)
-    # 调用XDeepFM模型
+    # 2. 调用XDeepFM模型
     model = DeepFM_XDeepFM_MTL(feat_columns,embed_dim,cin_layers=[7,15])
 
 
