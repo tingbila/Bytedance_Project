@@ -13,7 +13,16 @@ from tensorflow.keras import backend as K
 
 
 def CIN(input_dim, embedding_dim, layer_dims):
+    """
+    :param input_dim:     # 特征的数量
+    :param embedding_dim: # 每个特征的embedding向量维度
+    :param layer_dims:    # 几层CIN => 存储每一层的卷积层
+    :return:
+    """
+    # < KerasTensor
+    # shape = (None, 3, 5), dtype = float32, sparse = False, ragged = False, name = keras_tensor >
     input_x = Input(shape=(input_dim, embedding_dim))
+    # print(input_x)
     h = input_x
     field_nums = [input_dim]
     xs = []
@@ -53,8 +62,8 @@ def CIN(input_dim, embedding_dim, layer_dims):
 
 # 测试代码
 if __name__ == "__main__":
-    input_dim = 3
-    embedding_dim = 5
+    input_dim = 3     # 特征的数量
+    embedding_dim = 5 # 每个特征的embedding向量维度
     layer_dims = [7, 9]
 
     # 创建模型
@@ -63,6 +72,7 @@ if __name__ == "__main__":
 
     # 生成测试数据
     test_input = tf.random.normal(shape=(2, input_dim, embedding_dim))
+    print(test_input)
 
     # 前向传播
     output = model(test_input)

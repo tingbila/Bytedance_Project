@@ -13,6 +13,8 @@ import tensorflow as tf
 from datasets.utils_tf import create_dataset
 from config.data_config import *
 from models.deepfm import DeepFM_MTL
+from models.XDeepFM_MTL import DeepFM_XDeepFM_MTL
+
 
 
 if __name__ == "__main__":
@@ -31,7 +33,11 @@ if __name__ == "__main__":
     # print(item)
 
     # 构建模型
-    model = DeepFM_MTL(feat_columns,embed_dim)
+    # 调用DeepFM模型
+    # model = DeepFM_MTL(feat_columns,embed_dim)
+    # 调用XDeepFM模型
+    model = DeepFM_XDeepFM_MTL(feat_columns,embed_dim,cin_layers=[7,15])
+
 
     # 训练并评估
     train_and_evaluate(model, train_ds, valid_ds,test_ds)
