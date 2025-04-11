@@ -7,7 +7,7 @@
 
 # models/DeepFm.py
 from tensorflow.keras import layers, Model
-from models.fm_layer import FMInteractionLayer
+from models.FmLayer import FMInteractionLayer
 import tensorflow as tf
 import numpy as np
 import tensorflow as tf

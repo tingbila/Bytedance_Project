@@ -10,7 +10,7 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.keras import backend as K
 from tensorflow.keras.layers import Input, Conv1D, Dense, Lambda, Multiply, Reshape, Permute, Concatenate
-from models.cin_keras import CIN
+from models.Cin_Keras import CIN
 
 
 # 修改 DeepFM_MTL 类来集成 CIN
