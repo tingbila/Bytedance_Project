@@ -55,19 +55,20 @@ class XDeepFM_MTL(Model):
     def call(self, inputs, training=False):
         sparse_inputs, dense_inputs = inputs
 
-        # 第一阶部分
+        # 第一部分：线性部分
         linear_dense_out = self.linear_dense(dense_inputs)
         linear_sparse_out = tf.concat([emb(sparse_inputs[:, i]) for i, emb in enumerate(self.first_order_sparse_emb)], axis=1)
         linear_sparse_out = tf.reduce_sum(linear_sparse_out, axis=1, keepdims=True)
         first_order_output = linear_dense_out + linear_sparse_out
 
-        # 第二阶部分 (FM)
+        # 第二部分：FM部分
         embeddings = tf.stack([emb(sparse_inputs[:, i]) for i, emb in enumerate(self.second_order_sparse_emb)], axis=1)
         summed = tf.reduce_sum(embeddings, axis=1)
         squared_sum = tf.square(summed)
         squared = tf.reduce_sum(tf.square(embeddings), axis=1)
         second_order = 0.5 * tf.reduce_sum(squared_sum - squared, axis=1, keepdims=True)
 
+        # 第三部分：CIN部分
         # CIN部分 输入是离散变量embeddings之后的结果(2,3,5)
         cin_input = tf.reshape(embeddings, shape=(-1, len(self.sparse_feats), self.emb_size))
         # print(cin_input)
@@ -88,7 +89,7 @@ class XDeepFM_MTL(Model):
         # (3, 3, 5)
         cin_output = self.cin(cin_input)
 
-        # DNN 部分
+        # 第四部分：DNN 部分
         flatten_embeddings = tf.reshape(embeddings, shape=(-1, len(self.sparse_feats) * self.emb_size))
         dnn_input = tf.concat([dense_inputs, flatten_embeddings], axis=1)
         dnn_output = self.dnn(dnn_input, training=training)

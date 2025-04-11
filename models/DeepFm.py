@@ -59,6 +59,7 @@ class DeepFM_MTL(Model):
         # [[5 4 1]
         #  [3 2 3]]
 
+        # 第一部分：线性部分
         linear_dense_out = self.linear_dense(dense_inputs)
         linear_sparse_out = tf.concat([emb(sparse_inputs[:, i]) for i, emb in enumerate(self.first_order_sparse_emb)],
                                       axis=1)
@@ -73,6 +74,7 @@ class DeepFM_MTL(Model):
         # [[0.22632796]
         #  [0.6256093 ]]
 
+        # 第二部分：FM部分
         embeddings = tf.stack([emb(sparse_inputs[:, i]) for i, emb in enumerate(self.second_order_sparse_emb)], axis=1)
         # print(embeddings)
         # Tensor("stack:0", shape=(2, 3, 5), dtype=float32)
@@ -93,6 +95,7 @@ class DeepFM_MTL(Model):
         # [[0.00537243]
         #  [0.00075581]]
 
+        # 第三部分：DNN 部分
         flatten_embeddings = tf.reshape(embeddings, shape=(-1, len(self.sparse_feats) * self.emb_size))
         # print(flatten_embeddings)
         # Tensor("Reshape:0", shape=(2, 15), dtype=float32)
