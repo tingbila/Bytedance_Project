@@ -40,7 +40,7 @@ class DeepFM_XDeepFM_Attention_DCN_MTL(Model):
 
         # DCN Cross Network
         # 这里 input_dim = dense + sparse_embedding 的拼接维度。
-        self.cross_network = CrossNetwork(num_layers=3)
+        self.cross_network = CrossNetwork(input_dim=self.dense_size + len(self.sparse_feats) * emb_size,num_layers=3)
         # print("-----------cross_network input-------------")
         # print(self.dense_size + len(self.sparse_feats) * emb_size)
         # 在模型的 call() 方法里尝试创建新的 tf.Variable（或包含变量的层）是错误的，TensorFlow 要求这些变量只能在模型第一次调用前被创建。
