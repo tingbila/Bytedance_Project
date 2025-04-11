@@ -149,7 +149,7 @@ if __name__ == '__main__':
     ]
 
     # 初始化模型，CIN层设置为2层，每层输出维度为16，当然7,15这种也行
-    model = XDeepFM_Transform_CIN_Attention_MTL(feat_columns=feat_columns, emb_size=5, cin_layers=[7,15])
+    model = XDeepFM_Transform_DCN_CrossNetwork_Attention_MTL(feat_columns=feat_columns, emb_size=5, cin_layers=[7,15])
 
     # 模拟 batch size 为 3 的输入
     batch_size = 3
