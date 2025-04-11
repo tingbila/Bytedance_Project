@@ -15,7 +15,7 @@ from models.Attention import Attention
 
 
 # 修改 DeepFM_MTL 类来集成 CIN
-class DeepFM_XDeepFM_Attention_MTL(Model):
+class XDeepFM_Transform_MTL(Model):
     def __init__(self, feat_columns, emb_size, cin_layers):
         super().__init__()
         self.dense_feats, self.sparse_feats = feat_columns[0], feat_columns[1]
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     ]
 
     # 初始化模型，CIN层设置为2层，每层输出维度为16，当然7,15这种也行
-    model = DeepFM_XDeepFM_Attention_MTL(feat_columns=feat_columns, emb_size=5, cin_layers=[7,15])
+    model = XDeepFM_Transform_MTL(feat_columns=feat_columns, emb_size=5, cin_layers=[7,15])
 
     # 模拟 batch size 为 3 的输入
     batch_size = 3
