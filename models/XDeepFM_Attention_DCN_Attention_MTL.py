@@ -13,6 +13,7 @@ from tensorflow.keras.layers import Input, Conv1D, Dense, Lambda, Multiply, Resh
 from models.cin_keras import CIN
 from models.attention import Attention
 from models.DCNModel import CrossNetwork
+from models
 
 
 # 修改 DeepFM_MTL 类来集成 CIN
