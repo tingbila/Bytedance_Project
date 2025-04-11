@@ -15,7 +15,7 @@ import numpy as np
 from config.data_config import *
 
 
-class DeepFM_MTL(Model):
+class WideAndDeep(Model):
     def __init__(self, feat_columns, emb_size):
         super().__init__()
         self.dense_feats, self.sparse_feats = feat_columns[0], feat_columns[1]
@@ -46,9 +46,7 @@ class DeepFM_MTL(Model):
 
         # 每个任务一个输出层
         self.finish_output_layer = tf.keras.layers.Dense(1, activation='sigmoid', name='finish')
-        self.like_output_layer   = tf.keras.layers.Dense(1, activation='sigmoid', name='like')
-
-
+        self.like_output_layer = tf.keras.layers.Dense(1, activation='sigmoid', name='like')
 
     def call(self, inputs, training=False):
         sparse_inputs, dense_inputs = inputs
@@ -85,13 +83,6 @@ class DeepFM_MTL(Model):
         #   [-0.03824542  0.00229248  0.00047214  0.0488669  -0.04776417]
         #   [-0.01696395 -0.00136379  0.04921383  0.04019973 -0.00026955]]], shape=(2, 3, 5), dtype=float32)
 
-        summed = tf.reduce_sum(embeddings, axis=1)
-        squared_sum = tf.square(summed)
-        squared = tf.reduce_sum(tf.square(embeddings), axis=1)
-        second_order = 0.5 * tf.reduce_sum(squared_sum - squared, axis=1, keepdims=True)
-        # print(second_order)
-        # [[0.00537243]
-        #  [0.00075581]]
 
         flatten_embeddings = tf.reshape(embeddings, shape=(-1, len(self.sparse_feats) * self.emb_size))
         # print(flatten_embeddings)
@@ -105,14 +96,13 @@ class DeepFM_MTL(Model):
         dnn_input = tf.concat([dense_inputs, flatten_embeddings], axis=1)
         dnn_output = self.dnn(dnn_input, training=training)
 
-        logits = first_order_output + second_order + dnn_output
+        logits = first_order_output + dnn_output
 
         # 分支输出
         finish_output = self.finish_output_layer(logits)
-        like_output   = self.like_output_layer(logits)
+        like_output = self.like_output_layer(logits)
 
         return {'finish': finish_output, 'like': like_output}
-
 
 
 if __name__ == '__main__':
@@ -127,7 +117,7 @@ if __name__ == '__main__':
     ]
 
     # 初始化模型
-    model = DeepFM_MTL(feat_columns=feat_columns, emb_size=5)
+    model = WideAndDeep(feat_columns=feat_columns, emb_size=5)
 
     # 模拟 batch size 为 3 的输入
     batch_size = 3
@@ -144,7 +134,6 @@ if __name__ == '__main__':
     print(sparse_input.numpy())
     print("\n模型输出:")
     print(output)
-
 
     # Dense 输入:
     # [[0.19882536 0.9919691 ]

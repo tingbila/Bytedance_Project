@@ -12,7 +12,7 @@ import numpy as np
 # 定义 attention 类（使用 MultiHeadAttention）
 class Attention(tf.keras.layers.Layer):
     def __init__(self,num_heads=1, key_dim=5):
-        super(Attention, self).__init__()
+        super().__init__()
         # 使用 MultiHeadAttention，设置单头 Attention（num_heads=1）
         # key_dim 设置为 5，TensorFlow 会自动将 Value 的维度设置为 key_dim = 5，虽然Value 的维度不一定和key_dim相同
         self.attention = tf.keras.layers.MultiHeadAttention(num_heads, key_dim)

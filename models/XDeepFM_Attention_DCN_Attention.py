@@ -19,7 +19,7 @@ from models.Attention_DCN import AttentionCrossLayer
 # 修改 DeepFM_MTL 类来集成 CIN
 class DeepFM_XDeepFM_Attention_DCN_MTL(Model):
     def __init__(self, feat_columns, emb_size, cin_layers):
-        super(DeepFM_XDeepFM_Attention_DCN_MTL, self).__init__()
+        super().__init__()
         self.dense_feats, self.sparse_feats = feat_columns[0], feat_columns[1]
         self.dense_size = len(self.dense_feats)
         self.emb_size = emb_size

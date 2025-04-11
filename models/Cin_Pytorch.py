@@ -11,7 +11,7 @@ import torch.nn.functional as F
 
 class CIN(torch.nn.Module):
     def __init__(self, input_dim, layer_dims):
-        super(CIN, self).__init__()
+        super().__init__()
         self.layer_dims = layer_dims   # layer_dims 是一个列表，表示每层输出的特征数。例如，[7, 9] 表示每层输出 7,9 个交叉特征。
         self.field_nums = [input_dim]  # 初始特征数量（输入特征的数量）
         self.conv_layers = torch.nn.ModuleList()  # 存储每一层的卷积层

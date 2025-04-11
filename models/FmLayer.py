@@ -12,7 +12,7 @@ from tensorflow.keras import layers
 # FM二阶交叉项的计算流程
 class FMInteractionLayer(layers.Layer):
     def __init__(self, embedding_dim):
-        super(FMInteractionLayer, self).__init__()
+        super().__init__()
         self.embedding_dim = embedding_dim
 
     def build(self, input_shape):
