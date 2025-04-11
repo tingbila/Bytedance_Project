@@ -13,7 +13,7 @@ from tensorflow.keras.layers import Input, Conv1D, Dense, Lambda, Multiply, Resh
 from models.Cin_Keras import CIN
 
 
-# XDeepFM_MTL - CIN
+
 class XDeepFM_MTL(Model):
     def __init__(self, feat_columns, emb_size, cin_layers):
         super().__init__()

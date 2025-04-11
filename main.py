@@ -12,15 +12,12 @@ from trainers.trainer import train_and_evaluate
 import tensorflow as tf
 from datasets.utils_tf import create_dataset
 from config.data_config import *
-
-
 from models.Fm import FM_MTL
 from models.WideAndDeep import WideAndDeep
 from models.DeepFm import DeepFM_MTL
 from models.XDeepFM import XDeepFM_MTL
 from models.XDeepFM_Transform import XDeepFM_Transform_MTL
-from models.XDeepFM_Transform_CIN_Attention import XDeepFM_Transform_CIN_Attention_MTL
-
+from models.XDeepFM_Transform_DCN_CrossNetwork_Attention_MTL import XDeepFM_Transform_DCN_CrossNetwork_Attention_MTL
 
 
 
@@ -59,7 +56,7 @@ if __name__ == "__main__":
     # 6. 调用XDeepFM +  Transform_Attention + DCN_Attentiion模型
     # DCN:          finish_accuracy: 0.5000 - finish_auc: 0.4178 - finish_loss: 0.8678 - like_accuracy: 1.0000 - like_auc: 0.0000e+00 - like_loss: 0.1547 - loss: 1.0225
     # DCN_Attention:finish_accuracy: 0.5000 - finish_auc: 0.5000 - finish_loss: 0.6931 - like_accuracy: 1.0000 - like_auc: 0.0000e+00 - like_loss: 0.0504 - loss: 0.7435
-    model = XDeepFM_Transform_CIN_Attention_MTL(feat_columns,embed_dim,cin_layers=[7,15])
+    model = XDeepFM_Transform_DCN_CrossNetwork_Attention_MTL(feat_columns,embed_dim,cin_layers=[7,15])
 
     # 训练并评估
     train_and_evaluate(model, train_ds, valid_ds,test_ds)

@@ -9,7 +9,7 @@ import numpy as np
 
 
 
-# 定义 attention 类（使用 MultiHeadAttention）
+# 定义 Transform-attention 类（使用 MultiHeadAttention）
 class Attention(tf.keras.layers.Layer):
     def __init__(self,num_heads=1, key_dim=5):
         super().__init__()

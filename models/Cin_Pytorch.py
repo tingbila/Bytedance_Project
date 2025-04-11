@@ -9,6 +9,7 @@ import torch
 import torch.nn.functional as F
 
 
+# 定义 XdeepFM中的CIN组件
 class CIN(torch.nn.Module):
     def __init__(self, input_dim, layer_dims):
         super().__init__()

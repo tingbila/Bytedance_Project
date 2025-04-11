@@ -14,7 +14,7 @@ from models.Cin_Keras import CIN
 from models.Attention import Attention
 
 
-# 修改 DeepFM_MTL 类来集成 CIN
+# 定义XDeepFM + Transform当中的Attention
 class XDeepFM_Transform_MTL(Model):
     def __init__(self, feat_columns, emb_size, cin_layers):
         super().__init__()

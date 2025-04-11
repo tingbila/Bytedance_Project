@@ -11,7 +11,7 @@ from tensorflow.keras.layers import Input, Conv1D, Dense, Lambda, Multiply, Resh
 from tensorflow.keras import backend as K
 
 
-
+# 定义 XdeepFM中的CIN组件
 def CIN(input_dim, embedding_dim, layer_dims):
     """
     :param input_dim:     # 特征的数量

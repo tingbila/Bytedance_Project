@@ -12,12 +12,12 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.layers import Input, Conv1D, Dense, Lambda, Multiply, Reshape, Permute, Concatenate
 from models.Cin_Keras import CIN
 from models.Attention import Attention
-from models.DCN import CrossNetwork
-from models.DCN_Attention import AttentionCrossLayer
+from models.DCN_CrossNetwork import CrossNetwork
+from models.DCN_CrossNetwork_Attention import AttentionCrossLayer
 
 
-# 修改 DeepFM_MTL 类来集成 CIN
-class XDeepFM_Transform_CIN_Attention_MTL(Model):
+# 定义XDeepFM + Transform当中的Attention + CrossNetwork_Attention
+class XDeepFM_Transform_DCN_CrossNetwork_Attention_MTL(Model):
     def __init__(self, feat_columns, emb_size, cin_layers):
         super().__init__()
         self.dense_feats, self.sparse_feats = feat_columns[0], feat_columns[1]

@@ -17,7 +17,8 @@ from tensorflow.keras import layers
 import numpy as np
 
 
-# AttentionCrossLayer：通过引入注意力机制动态地调整每一层Cross Layer的特征交叉
+
+# 定义 CrossNetwork 的核心组件并进行创新，通过引入注意力机制动态地调整每一层Cross Layer的特征交叉
 class AttentionCrossLayer(tf.keras.layers.Layer):
     def __init__(self, input_dim, num_layers, num_heads=1, key_dim=8):
         """
