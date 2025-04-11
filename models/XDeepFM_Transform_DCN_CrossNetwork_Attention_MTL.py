@@ -16,7 +16,7 @@ from models.DCN_CrossNetwork import CrossNetwork
 from models.DCN_CrossNetwork_Attention import AttentionCrossLayer
 
 
-# 定义XDeepFM + Transform当中的Attention + CrossNetwork_Attention
+# 定义XDeepFM + Transform当中的Attention + CrossNetwork_Attention（这个类综合了CrossNetwork + XDeepFM 2个网络）
 class XDeepFM_Transform_DCN_CrossNetwork_Attention_MTL(Model):
     def __init__(self, feat_columns, emb_size, cin_layers):
         super().__init__()
