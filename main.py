@@ -43,6 +43,7 @@ if __name__ == "__main__":
     # finish_accuracy: 0.7333 - finish_auc: 0.8978 - finish_loss: 0.6232 - like_accuracy: 0.6000 - like_auc: 0.0000e+00 - like_loss: 0.6832 - loss: 1.3064
     # model = DeepFM_XDeepFM_Attention_MTL(feat_columns,embed_dim,cin_layers=[7,15])
     # 4. 调用XDeepFM + Attention + DCN模型
+    # finish_accuracy: 0.5000 - finish_auc: 0.8489 - finish_loss: 0.8148 - like_accuracy: 1.0000 - like_auc: 0.0000e+00 - like_loss: 0.2044 - loss: 1.0192
     model = DeepFM_XDeepFM_Attention_DCN_MTL(feat_columns,embed_dim,cin_layers=[7,15])
 
 
