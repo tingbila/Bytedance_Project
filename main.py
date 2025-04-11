@@ -15,7 +15,7 @@ from config.data_config import *
 from models.deepfm import DeepFM_MTL
 from models.XDeepFM_MTL import DeepFM_XDeepFM_MTL
 from models.XDeepFM_Attention_MTL import DeepFM_XDeepFM_Attention_MTL
-from models.XDeepFM_Attention_DCN_MTL import DeepFM_XDeepFM_Attention_DCN_MTL
+from models.XDeepFM_Attention_DCN_Attention_MTL import DeepFM_XDeepFM_Attention_DCN_MTL
 
 
 
@@ -37,15 +37,22 @@ if __name__ == "__main__":
     # 构建模型
     # 1. 调用DeepFM模型
     # model = DeepFM_MTL(feat_columns,embed_dim)
+
     # 2. 调用XDeepFM模型
     # model = DeepFM_XDeepFM_MTL(feat_columns,embed_dim,cin_layers=[7,15])
+
     # 3. 调用XDeepFM + Attention模型
     # finish_accuracy: 0.7333 - finish_auc: 0.8978 - finish_loss: 0.6232 - like_accuracy: 0.6000 - like_auc: 0.0000e+00 - like_loss: 0.6832 - loss: 1.3064
     # model = DeepFM_XDeepFM_Attention_MTL(feat_columns,embed_dim,cin_layers=[7,15])
+
     # 4. 调用XDeepFM + Attention + DCN模型
     # finish_accuracy: 0.5000 - finish_auc: 0.8489 - finish_loss: 0.8148 - like_accuracy: 1.0000 - like_auc: 0.0000e+00 - like_loss: 0.2044 - loss: 1.0192
-    model = DeepFM_XDeepFM_Attention_DCN_MTL(feat_columns,embed_dim,cin_layers=[7,15])
+    # model = DeepFM_XDeepFM_Attention_DCN_MTL(feat_columns,embed_dim,cin_layers=[7,15])
 
+    # 5. 调用XDeepFM + Attention + DCN_Attentiion模型
+    # DCN:          finish_accuracy: 0.5000 - finish_auc: 0.4178 - finish_loss: 0.8678 - like_accuracy: 1.0000 - like_auc: 0.0000e+00 - like_loss: 0.1547 - loss: 1.0225
+    # DCN_Attention:finish_accuracy: 0.5000 - finish_auc: 0.5000 - finish_loss: 0.6931 - like_accuracy: 1.0000 - like_auc: 0.0000e+00 - like_loss: 0.0504 - loss: 0.7435
+    model = DeepFM_XDeepFM_Attention_DCN_MTL(feat_columns,embed_dim,cin_layers=[7,15])
 
     # 训练并评估
     train_and_evaluate(model, train_ds, valid_ds,test_ds)

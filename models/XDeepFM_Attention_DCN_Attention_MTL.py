@@ -13,7 +13,7 @@ from tensorflow.keras.layers import Input, Conv1D, Dense, Lambda, Multiply, Resh
 from models.cin_keras import CIN
 from models.attention import Attention
 from models.DCNModel import CrossNetwork
-from models
+from models.Attention_DCN import AttentionCrossLayer
 
 
 # 修改 DeepFM_MTL 类来集成 CIN
@@ -37,11 +37,12 @@ class DeepFM_XDeepFM_Attention_DCN_MTL(Model):
         ]
 
         # Attention 模块
-        self.attention = Attention(num_heads=2, key_dim=5)
+        self.attention = Attention(num_heads=1, key_dim=5)
 
         # DCN Cross Network
         # 这里 input_dim = dense + sparse_embedding 的拼接维度。
-        self.cross_network = CrossNetwork(input_dim=self.dense_size + len(self.sparse_feats) * emb_size,num_layers=3)
+        # self.cross_network = CrossNetwork(input_dim=self.dense_size + len(self.sparse_feats) * emb_size,num_layers=3)
+        self.cross_network = AttentionCrossLayer(input_dim=self.dense_size + len(self.sparse_feats) * emb_size,num_layers=3)
         # print("-----------cross_network input-------------")
         # print(self.dense_size + len(self.sparse_feats) * emb_size)
         # 在模型的 call() 方法里尝试创建新的 tf.Variable（或包含变量的层）是错误的，TensorFlow 要求这些变量只能在模型第一次调用前被创建。
