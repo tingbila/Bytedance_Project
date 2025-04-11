@@ -12,10 +12,10 @@ from trainers.trainer import train_and_evaluate
 import tensorflow as tf
 from datasets.utils_tf import create_dataset
 from config.data_config import *
-from models.deepfm import DeepFM_MTL
-from models.XDeepFM_MTL import DeepFM_XDeepFM_MTL
-from models.XDeepFM_Attention_MTL import DeepFM_XDeepFM_Attention_MTL
-from models.XDeepFM_Attention_DCN_Attention_MTL import DeepFM_XDeepFM_Attention_DCN_MTL
+from models.DeepFm import DeepFM_MTL
+from models.XDeepFM import DeepFM_XDeepFM_MTL
+from models.XDeepFM_Attention import DeepFM_XDeepFM_Attention_MTL
+from models.XDeepFM_Attention_DCN_Attention import DeepFM_XDeepFM_Attention_DCN_MTL
 
 
 

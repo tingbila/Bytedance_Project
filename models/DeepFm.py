@@ -5,7 +5,7 @@
 # @Email : mingyang.zhang@ushow.media
 
 
-# models/deepfm.py
+# models/DeepFm.py
 from tensorflow.keras import layers, Model
 from models.fm_layer import FMInteractionLayer
 import tensorflow as tf
